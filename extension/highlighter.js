@@ -2592,7 +2592,6 @@ Roam-highlighter Shortcut Keys (v${verNum})
                     newSpan.style.setProperty("background-color", spanColor, "important");
                     newSpan.style.setProperty("color", "black", "important");
 
-                    newSpan.style.setProperty("display", "inline-block", "important");
 
                     //Set class for the new SPAN element so you can loop through the highlights later to copy to clipboard
                     newSpan.className = spanClass;
@@ -2604,11 +2603,14 @@ Roam-highlighter Shortcut Keys (v${verNum})
                     }
 
                     if (startElemNode.nodeName == 'IMG') {
+                        newSpan.style.setProperty("display", "inline-block", "important");
                         newSpan.style.setProperty("padding", "2px", "important");
                         startElemNode.parentNode.insertBefore(newSpan, startElemNode);
                         newSpan.appendChild(startElemNode);
                     }
                     else {
+                        newSpan.style.setProperty("display", "inline", "important");
+
                         //Create a range to create the new SPAN element from below
                         var divTest = document.createRange();
                         //Add the start and end points of the range for Highlighter
