@@ -2562,16 +2562,8 @@ Roam-highlighter Shortcut Keys (v${verNum})
                 var thisIsFirst = 0;
 
                 function createSpanElement(startElemNode, startElemPos, endElemNode, endElemPos, spanClass = "roamJsHighlighter", spanColor = "yellow", spanTitle = "") {
-                    //Create a range to create the new SPAN element from below
-                    var divTest = document.createRange();
-                    //Add the start and end points of the range for Highlighter
-                    divTest.setStart(startElemNode, startElemPos);
-                    divTest.setEnd(endElemNode, endElemPos);
-                    //Get the selection text to create from
-                    var subSelection = divTest;
-                    var selectedText = subSelection.extractContents();
                     //Create new HTML element SPAN and will add the roamJsHighlighter class to loop through later
-                    var newSpan = document.createElement("span");
+                    var newSpan = document.createElement("div");
 
                     if (foundSelection == 0) {
                         foundSelection = 1;
@@ -2584,6 +2576,8 @@ Roam-highlighter Shortcut Keys (v${verNum})
                     newSpan.style.setProperty("background-color", spanColor, "important");
                     newSpan.style.setProperty("color", "black", "important");
 
+                    newSpan.style.setProperty("display", "inline-block", "important");
+
                     //Set class for the new SPAN element so you can loop through the highlights later to copy to clipboard
                     newSpan.className = spanClass;
                     newSpan.title = spanTitle;
@@ -2593,6 +2587,14 @@ Roam-highlighter Shortcut Keys (v${verNum})
                         newSpan.setAttribute("hltabs", "1");
                     }
 
+                    //Create a range to create the new SPAN element from below
+                    var divTest = document.createRange();
+                    //Add the start and end points of the range for Highlighter
+                    divTest.setStart(startElemNode, startElemPos);
+                    divTest.setEnd(endElemNode, endElemPos);
+                    //Get the selection text to create from
+                    var subSelection = divTest;
+                    var selectedText = subSelection.extractContents();
                     newSpan.appendChild(selectedText);
                     subSelection.insertNode(newSpan);
                     if (debugMode != 0) { writeToConsole("NEW SPAN CREATED: " + newSpan); }
