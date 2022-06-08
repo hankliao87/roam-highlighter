@@ -2809,16 +2809,16 @@ Roam-highlighter Shortcut Keys (v${verNum})
                         }
                     }
                 }
+                //Special case for selecting image directly
+                else if (allWithinRangeParent.firstChild.nodeName == "IMG" && allWithinRangeParent.classList.contains("roamJsHighlighter")) {
+                    removeHighlight(allWithinRangeParent);
+                    bRemoveHighlights = true;
+                }
 
                 //If selected text is part of a previous highlight then the user is trying to remove that highlight
                 if (bRemoveHighlights == false) {
                     //Quickly loop through each selected element to see if any are already highlighted
                     for (var i = 0, elem; elem = allWithinRangeParent.childNodes[i]; i++) {
-                        if (elem.classList.contains("roamJsHighlighter") && elem.firstChild.nodeName == "IMG") {
-                            removeHighlight(elem);
-                            continue;
-                        }
-
                         if (elem == endCont && endOff == 0) {
                             //This typically occurs if you triple click a paragraph to select it all and the selection bleeds over into the next element but zero offset
                             if (debugMode != 0) { writeToConsole("Exiting the PRE loop as came to the EndContainer of Range and it has endOffset of 0"); }
@@ -2827,6 +2827,11 @@ Roam-highlighter Shortcut Keys (v${verNum})
                         if (debugMode != 0) {
                             writeToConsole(elem, 1, 0);
                             writeToConsole('elem.className: ' + elem.className, 1);
+                        }
+                        if (elem.childNodes.length > 0 && elem.firstChild.nodeName == "IMG" && elem.classList.contains("roamJsHighlighter")) {
+                            removeHighlight(elem);
+                            bRemoveHighlights = true;
+                            continue;
                         }
                         if (selection.containsNode(elem, true)) {
                             writeToConsole("Selection here found");
