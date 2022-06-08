@@ -2604,6 +2604,7 @@ Roam-highlighter Shortcut Keys (v${verNum})
                     }
 
                     if (startElemNode.nodeName == 'IMG') {
+                        newSpan.style.setProperty("padding", "2px", "important");
                         startElemNode.parentNode.insertBefore(newSpan, startElemNode);
                         newSpan.appendChild(startElemNode);
                     }
