@@ -1266,6 +1266,11 @@ Roam-highlighter Shortcut Keys (v${verNum})
             for (var i = 0; i < elemHighlights.length; i++) {
                 var curElement = elemHighlights.item(i);
 
+                if (curElement.firstChild.nodeName == "IMG") {
+                    curElement.replaceWith(...curElement.childNodes);
+                    continue;
+                }
+
                 //Check the previous and next siblings (i.e., the element before and after our highlight SPAN)
                 if (curElement.previousSibling !== null) { prevText = curElement.previousSibling.textContent; }
                 if (curElement.nextSibling !== null) { nextText = curElement.nextSibling.textContent; }
@@ -1299,6 +1304,11 @@ Roam-highlighter Shortcut Keys (v${verNum})
 
         //Remove a highlight based on given element variable
         function removeHighlight(curElement) {
+            if (curElement.firstChild.nodeName == "IMG") {
+                curElement.replaceWith(...curElement.childNodes);
+                return;
+            }
+
             var prevText = "", nextText = "";
 
             //Check the previous and next siblings (i.e., the element before and after our highlight SPAN)
@@ -1865,6 +1875,12 @@ Roam-highlighter Shortcut Keys (v${verNum})
                 var parNodeName = elemSpan.parentElement.nodeName;
                 if (debugMode != 0) { writeToConsole(elemSpan.parentElement, 1, 0); }
                 if (debugMode != 0) { writeToConsole('parNodeName: ' + parNodeName, 3); }
+
+                if (elemSpan.firstChild.nodeName == "IMG") {
+                    var imageNode = elemSpan.firstChild;
+                    eachHighlight = `![${imageNode.alt}](${imageNode.src})`;
+                }
+
                 if (parNodeName == "A") {
                     var eachLink = elemSpan.parentElement;
                     var linkTextToUse = eachLink.innerText;
@@ -2587,16 +2603,22 @@ Roam-highlighter Shortcut Keys (v${verNum})
                         newSpan.setAttribute("hltabs", "1");
                     }
 
-                    //Create a range to create the new SPAN element from below
-                    var divTest = document.createRange();
-                    //Add the start and end points of the range for Highlighter
-                    divTest.setStart(startElemNode, startElemPos);
-                    divTest.setEnd(endElemNode, endElemPos);
-                    //Get the selection text to create from
-                    var subSelection = divTest;
-                    var selectedText = subSelection.extractContents();
-                    newSpan.appendChild(selectedText);
-                    subSelection.insertNode(newSpan);
+                    if (startElemNode.nodeName == 'IMG') {
+                        startElemNode.parentNode.insertBefore(newSpan, startElemNode);
+                        newSpan.appendChild(startElemNode);
+                    }
+                    else {
+                        //Create a range to create the new SPAN element from below
+                        var divTest = document.createRange();
+                        //Add the start and end points of the range for Highlighter
+                        divTest.setStart(startElemNode, startElemPos);
+                        divTest.setEnd(endElemNode, endElemPos);
+                        //Get the selection text to create from
+                        var subSelection = divTest;
+                        var selectedText = subSelection.extractContents();
+                        newSpan.appendChild(selectedText);
+                        subSelection.insertNode(newSpan);
+                    }
                     if (debugMode != 0) { writeToConsole("NEW SPAN CREATED: " + newSpan); }
                     if (thisIsFirst == 1) {
                         thisIsFirst = 0;
@@ -2675,7 +2697,9 @@ Roam-highlighter Shortcut Keys (v${verNum})
                     }
                     else {
                         if (debugMode != 0) { writeToConsole("FIND LOWEST NODE: NO CHILDREN", 3); }
-                        if (inputNodeName == '#text') { inputNodeText = elemInput.textContent; } else { inputNodeText = elemInput.innerText; }
+                        if (inputNodeName == '#text') { inputNodeText = elemInput.textContent; }
+                        else if (inputNodeName == 'IMG' && elemInput.parentElement.classList.contains("roamJsHighlighter") == false) { createSpanElement(elemInput, startPos, elemInput, endPos); }
+                        else { inputNodeText = elemInput.innerText; }
                         if (typeof inputNodeText == "undefined") { inputNodeText = ''; }
                         thisHierarchyLevel += ':' + inputNodeText.trim();
                         if (inputNodeText.trim() != '') {
@@ -2790,6 +2814,11 @@ Roam-highlighter Shortcut Keys (v${verNum})
                 if (bRemoveHighlights == false) {
                     //Quickly loop through each selected element to see if any are already highlighted
                     for (var i = 0, elem; elem = allWithinRangeParent.childNodes[i]; i++) {
+                        if (elem.classList.contains("roamJsHighlighter") && elem.firstChild.nodeName == "IMG") {
+                            removeHighlight(elem);
+                            continue;
+                        }
+
                         if (elem == endCont && endOff == 0) {
                             //This typically occurs if you triple click a paragraph to select it all and the selection bleeds over into the next element but zero offset
                             if (debugMode != 0) { writeToConsole("Exiting the PRE loop as came to the EndContainer of Range and it has endOffset of 0"); }
